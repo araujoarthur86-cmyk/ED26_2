@@ -1,7 +1,6 @@
 #ifndef ENTIDADES_H
 #define ENTIDADES_H
 #include <string>
-#include <Build.h>
 
 // Entidades relacionadas a clientes
 struct Atributo
@@ -10,35 +9,39 @@ struct Atributo
     std::string nome;
 };
 
+struct Modificador
+{
+    int idAtributo;
+    int valor;
+};
+
+class Build
+{
+public:
+    Build();
+    int getPoder() const;
+    void modificarAtributo(int idAtributo, int valor);
+
+private: 
+    // Valores de cada atributo na Build;
+    // Implementar os métodos necessários para manipular os atributos da Build
+    ArrayDinamico<Modificador> modificadores;
+};
+
 class Cliente
 {
     private:
     int id;
     std::string nome;
     Build build;
-    bool ativo;
+    int poder;
 
     public:
     Cliente(int id, const std::string &nome, const Build &build);
     int getId() const;
     std::string getNome() const;
     int getPoder() const;
-    bool isAtivo() const;
-    void desativar();
 };
-
-//Entidades relacionadas ao mapa
-struct Regiao
-{
-    int id;
-    std::string nome;
-};
-
-struct Rota{
-    int RegiaoA;
-    int RegiaoB;
-    int custo;
-}
 
 struct Atendimento
 {

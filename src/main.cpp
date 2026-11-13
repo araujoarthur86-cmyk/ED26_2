@@ -2,9 +2,10 @@
 #include <string>
 #include "entidades.h"
 #include "ArrayDinamico.h"
-#include "ListaPrioridade.h"
+#include "FilaAtendimento.h"
 #include "Indice.h"
 #include "Mapa.h"
+#include "mapeamento.h"
 
 enum class TipoComando
 {
@@ -28,6 +29,7 @@ int main()
 {
   ArrayDinamico<Atributo> atributos;
   ArrayDinamico<Cliente> clientes;
+  ArrayDinamico<Regiao> regioes;
   Indice indice;
   Mapa mapa;
   FilaAtendimento fila;
@@ -81,7 +83,10 @@ int main()
       }
 
       clientes.push_back({idCliente, nomeCliente, build});
-      indice.cadastrarCliente(idCliente, build.getPoder());
+      indice.cadastrarCliente(
+        clientes.at(idCliente).getId(),
+        clientes.at(idCliente).getPoder());
+
       std::cout << "C " << idCliente << "\n";
       break;
     }
@@ -91,8 +96,6 @@ int main()
       std::cin >> idCliente;
 
       indice.encerrarAtendimento(idCliente);
-      Cliente &cliente = clientes.at(idCliente);
-      cliente.desativar();
 
       std::cout << "D " << idCliente << "\n";
       break;
@@ -120,9 +123,13 @@ int main()
     {
       std::string nomeRegiao;
       std::cin >> nomeRegiao;
+      int idRegiao = regioes.size();
 
-      // mapa.cadastrarRegiao(nomeRegiao);
-      std::cout << "R " << nomeRegiao << "\n";
+      Regiao newRegiao{idRegiao, nomeRegiao};
+      regioes.push_back(newRegiao);
+
+      mapa.cadastrarRegiao(idRegiao);
+      std::cout << "R " << idRegiao << "\n";
       break;
     }
     case TipoComando::T:
@@ -145,7 +152,7 @@ int main()
     case TipoComando::F:
     {
       int idCliente;
-      char prioridade;
+      int prioridade;
       std::cin >> idCliente >> prioridade;
       fila.inserirCliente(idCliente, prioridade);
       
@@ -157,16 +164,15 @@ int main()
       int k;
       std::cin >> k;
 
-      pendentes = fila.size();
+      int pendentes = fila.size();
       ArrayDinamico<Atendimento> atendimentos;
       fila.atenderClientes(k, atendimentos);
-      atendidos = pendentes - fila.size();
+      int atendidos = pendentes - fila.size();
 
       std::cout << "Z " << atendidos << "\n";
 
       if(atendidos > 0)
       {
-        std::cout << "Clientes atendidos: ";
         for(int i = 0; i < atendidos; ++i)
         {
           std::cout << "atendimento_" << (i + 1) << atendimentos.at(i) << " ";
