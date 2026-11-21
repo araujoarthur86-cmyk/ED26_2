@@ -85,7 +85,8 @@ int main()
       clientes.push_back({idCliente, nomeCliente, build});
       indice.cadastrarCliente(
         clientes.at(idCliente).getId(),
-        clientes.at(idCliente).getPoder());
+        clientes.at(idCliente).getPoder()
+      );
 
       std::cout << "C " << idCliente << "\n";
       break;

@@ -34,7 +34,6 @@ class Cliente
     int id;
     std::string nome;
     Build build;
-    int poder;
 
     public:
     Cliente(int id, const std::string &nome, const Build &build);
