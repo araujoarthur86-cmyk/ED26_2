@@ -165,10 +165,9 @@ int main()
       int k;
       std::cin >> k;
 
-      int pendentes = fila.size();
       ArrayDinamico<Atendimento> atendimentos;
       fila.atenderClientes(k, atendimentos);
-      int atendidos = pendentes - fila.size();
+      int atendidos = atendimentos.size();
 
       std::cout << "Z " << atendidos << "\n";
 

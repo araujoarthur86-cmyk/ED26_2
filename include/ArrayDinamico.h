@@ -34,6 +34,8 @@ public:
     // Esvazia logicamente o array, preservando a memoria para reutilizacao.
     void clear();
 
+    void swap(int a, int b);
+
     T &at(int indice);
     const T &at(int indice) const;
 
@@ -178,6 +180,23 @@ template <typename T>
 void ArrayDinamico<T>::clear()
 {
     quantidade = 0;
+}
+
+template <typename T>
+void ArrayDinamico<T>::swap(int a, int b)
+{
+    if (
+    a < 0 || a >= quantidade
+    || 
+    b < 0 || b >= quantidade)
+    {
+        throw std::out_of_range("Indice fora dos limites");
+    }
+
+    T temp = this->at(a);
+
+    this->at(a) = this->at(b);
+    this->at(b) = temp;
 }
 
 template <typename T>

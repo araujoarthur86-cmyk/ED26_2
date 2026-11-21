@@ -46,5 +46,9 @@ struct Atendimento
 {
     int idCliente;
     int prioridade;
+
+    bool operator>(const Atendimento &outro) const;
+    bool operator==(const Atendimento& outro) const;
+
 };
 #endif // ENTIDADES_H
