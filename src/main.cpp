@@ -1,220 +1,247 @@
 #include <iostream>
 #include <string>
-#include "entidades.h"
+
 #include "ArrayDinamico.h"
 #include "FilaAtendimento.h"
 #include "Indice.h"
 #include "Mapa.h"
-#include "mapeamento.h"
+#include "entidades.h"
 
 enum class TipoComando
 {
-  E,  // modo de Representacao Indice
-  A,  // cadastra atributo
-  C,  // cadastra cliente
-  D,  // Encerra atendimento
-  BP, // Busca por Poder exato
-  BF, // Busca por Faixa de Poder
-  R,  // Cadastro Regiao
-  T,  // Cadastro de Rota
-  CC, // Conectividade entre Regioes
-  F,  // Insere na fila de atendimento
-  Z,  // Atendimento
-  INVALIDO
+    E,
+    A,
+    C,
+    D,
+    BP,
+    BF,
+    R,
+    T,
+    CC,
+    F,
+    Z,
+    INVALIDO
 };
 
 TipoComando identificarComando(const std::string &comando);
 
+void imprimirBuscaPorPoder(
+    int poder,
+    const ResultadoBuscaIndice &resultados)
+{
+    std::cout << "BP " << poder;
+    if (resultados.size() == 0)
+    {
+        std::cout << " VAZIO\n";
+        return;
+    }
+
+    for (int i = 0; i < resultados.size(); ++i)
+    {
+        const Celula &cliente = resultados.at(i);
+        std::cout << " cliente_" << (i + 1) << " " << cliente.idCliente;
+    }
+    std::cout << '\n';
+}
+
+void imprimirBuscaPorFaixa(
+    int poderMin,
+    int poderMax,
+    const ResultadoBuscaIndice &resultados)
+{
+    std::cout << "BF " << poderMin << " " << poderMax;
+    if (resultados.size() == 0)
+    {
+        std::cout << " VAZIO\n";
+        return;
+    }
+
+    for (int i = 0; i < resultados.size(); ++i)
+    {
+        const Celula &cliente = resultados.at(i);
+        std::cout << " cliente_" << (i + 1) << " "
+            << cliente.idCliente << " " << cliente.poder;
+    }
+    std::cout << '\n';
+}
+
 int main()
 {
-  ArrayDinamico<Atributo> atributos;
-  ArrayDinamico<Cliente> clientes;
-  ArrayDinamico<Regiao> regioes;
-  Indice indice;
-  Mapa mapa;
-  FilaAtendimento fila;
+    ArrayDinamico<Atributo> atributos;
+    ArrayDinamico<Cliente> clientes;
+    Indice indice;
+    Mapa mapa;
+    FilaAtendimento fila;
+    ResultadoBuscaIndice resultadosBusca;
 
-  std::string comando;
-
-  while (std::cin >> comando)
-  {
-    TipoComando tipo = identificarComando(comando);
-
-    switch (tipo)
+    std::string comando;
+    while (std::cin >> comando)
     {
-    case TipoComando::E:
-    {
-      char modo;
-      std::cin >> modo;
-      indice.mudarModo(modo);
-      std::cout << "E " << modo << '\n';
-
-      break;
-    }
-    case TipoComando::A:
-    {
-      
-      std::string nomeAtributo;
-      std::cin >> nomeAtributo;
-      int idAtributo = atributos.size();
-      
-      Atributo newAtributo{idAtributo, nomeAtributo};
-      atributos.push_back(newAtributo);
-
-      std::cout << "A " << idAtributo << "\n";
-      break;
-    }
-    //Cadastra um cliente com a build especificada
-    case TipoComando::C:
-    {
-      std::string nomeCliente;
-      std::cin >> nomeCliente;
-      int idCliente = clientes.size();
-
-      int k; // numero de atributos na build
-      std::cin >> k;
-      int atributoId, valor;
-      
-      Build build;
-      for(int i = 0; i < k; ++i)
-      {
-        std::cin >> atributoId >> valor;
-        build.modificarAtributo(atributoId, valor);
-      }
-
-      clientes.push_back({idCliente, nomeCliente, build});
-      indice.cadastrarCliente(
-        clientes.at(idCliente).getId(),
-        clientes.at(idCliente).getPoder()
-      );
-
-      std::cout << "C " << idCliente << "\n";
-      break;
-    }
-    case TipoComando::D:
-    {
-      int idCliente;
-      std::cin >> idCliente;
-
-      indice.encerrarAtendimento(idCliente);
-
-      std::cout << "D " << idCliente << "\n";
-      break;
-    }
-    case TipoComando::BP:
-    {
-      // Lista os Clientes com determinado poder BP
-      int poder;
-      std::cin >> poder;
-
-      indice.buscarPorPoder(poder);
-
-      break;
-    }
-    case TipoComando::BF:
-    { // Busca por faixa de Poder BF
-      int poderMin, poderMax;
-      std::cin >> poderMin >> poderMax;
-
-      indice.buscarPorFaixaPoder(poderMin, poderMax);
-
-      break;
-    }
-    case TipoComando::R:
-    {
-      std::string nomeRegiao;
-      std::cin >> nomeRegiao;
-      int idRegiao = regioes.size();
-
-      Regiao newRegiao{idRegiao, nomeRegiao};
-      regioes.push_back(newRegiao);
-
-      mapa.cadastrarRegiao(idRegiao);
-      std::cout << "R " << idRegiao << "\n";
-      break;
-    }
-    case TipoComando::T:
-    {
-      int idRegiao1, idRegiao2, custo;
-      std::cin >> idRegiao1 >> idRegiao2 >> custo;
-      mapa.cadastrarRota(idRegiao1, idRegiao2, custo);
-
-      std::cout << "T " /*<< mapa.getNomeRegiao(idRegiao1) << " " << mapa.getNomeRegiao(idRegiao2) << " " << custo*/ << "\n";
-      break;
-    }
-    case TipoComando::CC:
-    {
-      int idRegiaoA, idRegiaoB;
-      std::cin >> idRegiaoA >> idRegiaoB;
-      std::string connected = mapa.areConnected(idRegiaoA, idRegiaoB);
-      std::cout << "CC " << idRegiaoA << " " << idRegiaoB << connected << "\n";
-      break;
-    }
-    case TipoComando::F:
-    {
-      int idCliente;
-      int prioridade;
-      std::cin >> idCliente >> prioridade;
-      fila.inserirCliente(idCliente, prioridade);
-      
-      std::cout << "F " << fila.size() << "\n";
-      break;
-    }
-    case TipoComando::Z:
-    { // Atender até k Clientes
-      int k;
-      std::cin >> k;
-
-      ArrayDinamico<Atendimento> atendimentos;
-      fila.atenderClientes(k, atendimentos);
-      int atendidos = atendimentos.size();
-
-      std::cout << "Z " << atendidos << "\n";
-
-      if(atendidos > 0)
-      {
-        for(int i = 0; i < atendidos; ++i)
+        TipoComando tipo = identificarComando(comando);
+        switch (tipo)
         {
-          std::cout << "atendimento_" << (i + 1) << atendimentos.at(i) << " ";
+        case TipoComando::E:
+        {
+            char modo;
+            std::cin >> modo;
+            indice.mudarModo(modo);
+            std::cout << "E " << modo << '\n';
+            break;
         }
-        std::cout << "\n";
-      }
-      break;
+        case TipoComando::A:
+        {
+            std::string nomeAtributo;
+            std::cin >> nomeAtributo;
+
+            int idAtributo = atributos.size();
+            Atributo novoAtributo{idAtributo, nomeAtributo};
+            atributos.push_back(novoAtributo);
+
+            std::cout << "A " << idAtributo << '\n';
+            break;
+        }
+        case TipoComando::C:
+        {
+            std::string nomeCliente;
+            std::cin >> nomeCliente;
+
+            int idCliente = clientes.size();
+            int quantidadeAtributos;
+            std::cin >> quantidadeAtributos;
+
+            Build build;
+            for (int i = 0; i < quantidadeAtributos; ++i)
+            {
+                int idAtributo;
+                int valor;
+                std::cin >> idAtributo >> valor;
+                build.modificarAtributo(idAtributo, valor);
+            }
+
+            clientes.push_back({idCliente, nomeCliente, build});
+            const Cliente &cliente = clientes.at(idCliente);
+            indice.cadastrarCliente(cliente.getId(), cliente.getPoder());
+
+            std::cout << "C " << idCliente << " " << cliente.getPoder()
+                << '\n';
+            break;
+        }
+        case TipoComando::D:
+        {
+            int idCliente;
+            std::cin >> idCliente;
+
+            const Cliente &cliente = clientes.at(idCliente);
+            indice.encerrarAtendimento(idCliente, cliente.getPoder());
+            std::cout << "D " << cliente.getNome() << " "
+                << cliente.getPoder() << '\n';
+            break;
+        }
+        case TipoComando::BP:
+        {
+            int poder;
+            std::cin >> poder;
+            indice.buscarPorPoder(poder, resultadosBusca);
+            imprimirBuscaPorPoder(poder, resultadosBusca);
+            break;
+        }
+        case TipoComando::BF:
+        {
+            int poderMin;
+            int poderMax;
+            std::cin >> poderMin >> poderMax;
+            indice.buscarPorFaixaPoder(poderMin, poderMax, resultadosBusca);
+            imprimirBuscaPorFaixa(poderMin, poderMax, resultadosBusca);
+            break;
+        }
+        case TipoComando::R:
+        {
+            std::string nomeRegiao;
+            std::cin >> nomeRegiao;
+            int idRegiao = mapa.cadastrarRegiao(nomeRegiao);
+            std::cout << "R " << idRegiao << '\n';
+            break;
+        }
+        case TipoComando::T:
+        {
+            int idRegiaoA;
+            int idRegiaoB;
+            int custo;
+            std::cin >> idRegiaoA >> idRegiaoB >> custo;
+            mapa.cadastrarRota(idRegiaoA, idRegiaoB, custo);
+
+            std::cout << "T " << mapa.getNomeRegiao(idRegiaoA) << " "
+                << mapa.getNomeRegiao(idRegiaoB) << " " << custo << '\n';
+            break;
+        }
+        case TipoComando::CC:
+        {
+            int idRegiaoA;
+            int idRegiaoB;
+            std::cin >> idRegiaoA >> idRegiaoB;
+
+            bool conectado = mapa.areConnected(idRegiaoA, idRegiaoB);
+            std::cout << "CC " << mapa.getNomeRegiao(idRegiaoA) << " "
+                << mapa.getNomeRegiao(idRegiaoB) << " "
+                << (conectado ? "SIM" : "NAO") << '\n';
+            break;
+        }
+        case TipoComando::F:
+        {
+            int idCliente;
+            int prioridade;
+            std::cin >> idCliente >> prioridade;
+            fila.inserirCliente(idCliente, prioridade);
+            std::cout << "F " << fila.size() << '\n';
+            break;
+        }
+        case TipoComando::Z:
+        {
+            int limite;
+            std::cin >> limite;
+
+            ArrayDinamico<Atendimento> atendimentos;
+            fila.atenderClientes(limite, atendimentos);
+            int quantidadeAtendida = atendimentos.size();
+            std::cout << "Z " << quantidadeAtendida << '\n';
+
+            if (quantidadeAtendida > 0)
+            {
+                for (int i = 0; i < quantidadeAtendida; ++i)
+                {
+                    const Atendimento &atendimento = atendimentos.at(i);
+                    if (i > 0)
+                    {
+                        std::cout << ' ';
+                    }
+                    std::cout << "atendimento_" << (i + 1) << " "
+                        << atendimento.idCliente << " "
+                        << atendimento.prioridade;
+                }
+                std::cout << '\n';
+            }
+            break;
+        }
+        case TipoComando::INVALIDO:
+            break;
+        }
     }
-    case TipoComando::INVALIDO:
-    {
-      // Entrada do comando é sembre valida
-      break;
-    }
-    }
-  }
-  return 0;
+
+    return 0;
 }
 
 TipoComando identificarComando(const std::string &comando)
 {
-  if (comando == "E")
-    return TipoComando::E;
-  else if (comando == "A")
-    return TipoComando::A;
-  else if (comando == "C")
-    return TipoComando::C;
-  else if (comando == "D")
-    return TipoComando::D;
-  else if (comando == "BP")
-    return TipoComando::BP;
-  else if (comando == "BF")
-    return TipoComando::BF;
-  else if (comando == "R")
-    return TipoComando::R;
-  else if (comando == "T")
-    return TipoComando::T;
-  else if (comando == "CC")
-    return TipoComando::CC;
-  else if (comando == "F")
-    return TipoComando::F;
-  else if (comando == "Z")
-    return TipoComando::Z;
-
-  return TipoComando::INVALIDO;
+    if (comando == "E") return TipoComando::E;
+    if (comando == "A") return TipoComando::A;
+    if (comando == "C") return TipoComando::C;
+    if (comando == "D") return TipoComando::D;
+    if (comando == "BP") return TipoComando::BP;
+    if (comando == "BF") return TipoComando::BF;
+    if (comando == "R") return TipoComando::R;
+    if (comando == "T") return TipoComando::T;
+    if (comando == "CC") return TipoComando::CC;
+    if (comando == "F") return TipoComando::F;
+    if (comando == "Z") return TipoComando::Z;
+    return TipoComando::INVALIDO;
 }

@@ -2,16 +2,16 @@
 
 void FilaAtendimento::inserirCliente(int idCliente, int prioridade)
 {
-    Atendimento newAtendimento{idCliente, prioridade};
-    int i = size(); 
-    heap.push_back(newAtendimento);
+    Atendimento novoAtendimento{idCliente, prioridade};
+    int i = size();
+    heap.push_back(novoAtendimento);
 
     subir(i);
 }
 
 void FilaAtendimento::atendeRaiz()
 {
-    int last = size() - 1; 
+    int last = size() - 1;
     heap.at(0) = heap.at(last);
     heap.erase(last);
     last = 0;
@@ -24,12 +24,12 @@ int FilaAtendimento::atenderClientes(int k, ArrayDinamico<Atendimento> &atendime
     atendimentos.clear();
     int n = size();
 
-    if(n > k)
+    if (n > k)
     {
         n = k;
     }
 
-    for(int i = 0; i < n; ++i)
+    for (int i = 0; i < n; ++i)
     {
         Atendimento raiz = heap.at(0);
         atendimentos.push_back(raiz);
@@ -49,7 +49,7 @@ void FilaAtendimento::subir(int indice)
 {
     int pai = getAncestral(indice);
 
-    while(indice > 0 && heap.at(indice) > heap.at(pai))
+    while (indice > 0 && heap.at(indice) > heap.at(pai))
     {
         heap.swap(pai, indice);
 
@@ -86,11 +86,7 @@ void FilaAtendimento::descer(int indice)
     }
 }
 
-int FilaAtendimento::getAncestral(int indice) 
+int FilaAtendimento::getAncestral(int indice)
 {
-    return (indice - 1)/2;
+    return (indice - 1) / 2;
 }
-
-int FilaAtendimento::getSucessorEsq(int indice) { return 2*indice + 1; }
-int FilaAtendimento::getSucessorDir(int indice) { return 2*indice + 2; }
-

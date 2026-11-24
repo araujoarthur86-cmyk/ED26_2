@@ -40,6 +40,7 @@ public:
     const T &at(int indice) const;
 
     int size() const;
+    // EXP: int capacidadeReservada() const { return capacidade; }
 };
 
 template <typename T>
@@ -185,10 +186,7 @@ void ArrayDinamico<T>::clear()
 template <typename T>
 void ArrayDinamico<T>::swap(int a, int b)
 {
-    if (
-    a < 0 || a >= quantidade
-    || 
-    b < 0 || b >= quantidade)
+    if (a < 0 || a >= quantidade || b < 0 || b >= quantidade)
     {
         throw std::out_of_range("Indice fora dos limites");
     }

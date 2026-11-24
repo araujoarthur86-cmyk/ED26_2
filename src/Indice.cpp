@@ -1,5 +1,8 @@
 #include "Indice.h"
-Indice::Indice() : representacao(nullptr), modo('') {}
+#include "IndiceAVL.h"
+#include "IndiceHash.h"
+
+Indice::Indice() : representacao(nullptr), modo('\0') {}
 
 Indice::~Indice()
 {
@@ -8,42 +11,50 @@ Indice::~Indice()
 
 void Indice::cadastrarCliente(int idCliente, int poder)
 {
-    // Implementar controle de clientes ativos
-
     representacao->cadastrarCliente(idCliente, poder);
 }
 
-void Indice::encerrarAtendimento(int idCliente)
+void Indice::encerrarAtendimento(int idCliente, int poder)
 {
-    // Implementar controle de clientes ativos
-    representacao->encerrarAtendimento(idCliente);
+    representacao->encerrarAtendimento(idCliente, poder);
 }
 
-void Indice::buscarPorPoder(int poder)
+void Indice::buscarPorPoder(int poder, ResultadoBuscaIndice &resultados)
 {
-    representacao->buscarPorPoder(poder);
+    resultados.clear();
+    representacao->buscarPorPoder(poder, resultados);
 }
 
-void Indice::buscarPorFaixaPoder(int poderMin, int poderMax)
+void Indice::buscarPorFaixaPoder(
+    int poderMin,
+    int poderMax,
+    ResultadoBuscaIndice &resultados)
 {
-    representacao->buscarPorFaixaPoder(poderMin, poderMax);
+    resultados.clear();
+    representacao->buscarPorFaixaPoder(poderMin, poderMax, resultados);
 }
 
 void Indice::mudarModo(char novoModo)
 {
-    
     if (novoModo == modo)
     {
         return;
     }
-    RepresentacaoIndice* novaRepresentacao = nullptr;
+    RepresentacaoIndice *nova;
+    if (novoModo == 'A') nova = new IndiceA();
+    else nova = new IndiceHash();
 
-    /*
-    Implementação
-    */
-
+    try
+    {
+        if (representacao) representacao->copiarPara(*nova);
+    }
+    catch (...)
+    {
+        delete nova;
+        throw;
+    }
 
     delete representacao;
-    representacao = novaRepresentacao;
+    representacao = nova;
     modo = novoModo;
 }
